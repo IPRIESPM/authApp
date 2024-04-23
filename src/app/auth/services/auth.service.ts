@@ -19,6 +19,13 @@ export class AuthService {
 
   constructor() { }
 
+  private setAuthentication(user:User, token:string):boolean{
+    this._currentUser.set(user);
+    this._authStatus.set(AuthStatus.authenticated);
+    localStorage.setItem('token', token);
+    return true;
+  }
+
   login(email:string, password:string):Observable<boolean>{
     const url = `${this.baseUrl}/auth/login`;
     const body = {
@@ -27,16 +34,8 @@ export class AuthService {
     }
     return this.httpClient.post<LoginResponse>(url,body)
     .pipe(
-      tap( ({user, token})=>{
-        this._currentUser.set(user);
-        this._authStatus.set(AuthStatus.authenticated);
-        localStorage.setItem('token', token);
-
-      }),
-      map(()=>true),
-      catchError( err => {
-        return throwError(() => err.error.message);
-      })
+      map(({user, token}) => this.setAuthentication(user, token)),
+      catchError( err => throwError(() => err.error.message))
     )
   }
 
@@ -62,8 +61,5 @@ export class AuthService {
         return of(false);
       })
     );
-
-    return of(true);
   }
-
 }
