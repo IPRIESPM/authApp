@@ -2,7 +2,8 @@ import { Injectable, computed, inject, signal } from '@angular/core';
 import { environment } from '../../../environments/environments';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, catchError, map, of, tap, throwError } from 'rxjs';
-import { AuthStatus, CheckTokenResponse, LoginResponse, User } from '../interfaces';
+import { AuthStatus, LoginResponse, User } from '../interfaces';
+import { CheckTokenResponse } from '../interfaces/check-token.response';
 
 @Injectable({
   providedIn: 'root'
@@ -17,7 +18,9 @@ export class AuthService {
   currentUser = computed(() => this._currentUser());
   authStatus = computed(() => this._authStatus());
 
-  constructor() { }
+  constructor() {
+    this.checkAuthStatus().subscribe();
+  }
 
   private setAuthentication(user:User, token:string):boolean{
     this._currentUser.set(user);
